@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Data Structures</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script type="text/javascript" src='{% static "user/js/user.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/commonFunctions.js" %}'></script>
+  <script type="text/javascript">
+  	var token             = '{{csrf_token}}';
+  </script>
+
+  <style type="text/css">
+  	.error{
+  		border: 1px solid red;
+  	}
+  </style>
+</head>
+<body>
+
+
+  <nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="">Beinex Assignment</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="">Data Structures</a></li>
+    </ul>
+    <a style="border: 1px solid white;color: white;padding-left: 10px;padding-right: 10px;padding-top: 2px;padding-bottom: 2px;margin-top: 0.5%;text-decoration:none;" href="{% url 'logout' %}" class="nav navbar-nav pull-right"><i class="fa fa-sign-out" style="font-size:24px"></i>&nbsp;Logout</a>
+    
+  </div>
+</nav>
+
+<div class="container">
+  <!-- <h2 style="text-align: center;">Data Structures</h2>     -->
+  <br>
+  <br>       
+  <div class="row">
+  	<div class="col-md-7"></div>
+    <div class="col-md-2"><button type="button" style="float: right;display: none;" class="btn btn-danger" id="delete_selected">Delete selected</button></div>
+  	<div class="col-md-1"><button type="button" style="float: right;" class="btn btn-primary" id="add_new">Add New</button></div>
+  </div>
+  <br>
+  <div class="row">
+  	<div class="col-md-2"></div>
+  	<div class="col-md-8">
+	  	<table class="table table-bordered">
+		    <thead>
+		      <tr>
+		        <th></th>
+		        <th>Name</th>
+		        <th style="width: 15%;">Actions</th>
+		      </tr>
+		    </thead>
+		    <tbody>
+          {% if dataStructures|length > 0 %}
+            {% for dataStructure in dataStructures %}
+            <tr id="dataStructureTableRow_{{dataStructure.id}}">
+              <td style="text-align: center;width: 15%;"><input style="zoom:1.5;" class="delete_multiple" type="checkbox" value="{{dataStructure.id}}"></td>
+              <td class="row_name">{{dataStructure.name}}</td>
+              <td style="text-align: center;width: 15%;">
+                
+                <i class="fa fa-edit edit_data"      id="{{dataStructure.id}}" style="font-size:28px;cursor: pointer;"></i>
+                <i class="fa fa-trash-o delete_data" id="{{dataStructure.id}}" style="font-size:28px;cursor: pointer;"></i>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr class="nodata_row">
+              <td colspan="3" style="text-align: center;">No data to display</td>
+            </tr>
+          {% endif %}
+		    </tbody>
+		</table>
+	</div>
+	<div class="col-md-2"></div>
+  </div>
+</div>
+
+
+
+<!-- Modal -->
+
+<div class="modal" id="myModal" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title" style="text-align: center;">Add New Data Structure</h4>
+        <!-- <br> -->
+        <div style="text-align: center;font-weight: bold;margin-top: 1%"><span id="errorSpan" style="color: red"></span> </div>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+        	<div class="col-md-1"></div>
+        	<div class="col-md-3" style="font-weight: bold;">Name:</div>
+        	<div class="col-md-7"><input placeholder="Enter Data Structure Name" type="text" class="form-control" id="dataStructureName"></div>
+        	<div class="col-md-1"></div>
+        </div>
+        <hr>
+        <div class="row">
+        	<div class="col-md-9"></div>
+        	<div class="col-md-2">
+        		<button type="button" id="addField" class="btn btn-primary">Add Field</button>
+        	</div>
+        	<div class="col-md-1">
+        	</div>
+        </div>
+
+
+        <br>
+
+
+<!--        <br>
+		<div class="row dataStructureRow">
+<div class="col-md-1"></div>
+<div class="col-md-5"><input placeholder="Enter Filed Name"  type="text" class="form-control dataStructureRowName"></div>
+		<div class="col-md-4">
+		<select class="form-control dataStructureRowDataType">
+		</select>
+		</div>
+		<div class="col-md-1"><i class="fa fa-trash-o" style="font-size:28px;color:red;cursor: pointer;"></i></div>
+		<div class="col-md-1"></div>
+		</div> -->
+
+      </div>
+
+
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="closeModal">Close</button>
+        <button type="button" class="btn btn-success" id="saveData">Save</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
