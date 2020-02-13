@@ -11,6 +11,11 @@ $(document).ready(function(){
 
 
 	$("#addField").click(function(){
+		limit = 5
+		if($(".dataStructureRow").length >= limit){
+			alert("maximum number of data types reached");
+			return false;
+		}
 		appendFieldItem();
 	})
 

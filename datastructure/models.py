@@ -22,7 +22,7 @@ class dataTypeMapping(models.Model):
 
 
     def __str__(self):
-        return self.datastructure.name
+        return ""
 
     # class Meta:
     #     unique_together = ('datastructure', 'datatype',)
