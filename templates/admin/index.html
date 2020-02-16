@@ -14,6 +14,9 @@
     	.error{
     		border: 1px solid red;
     	}
+    	#html5-watermark{
+    		display: none !important;
+    	}
     </style>
 {% endblock %}
 
@@ -326,6 +329,9 @@
 			var files 	 = $(element)[0].files[0];
 			formData.append('file', files); 
 			formData.append("mappingId",$(element).attr("id"));
+			existingButtonText = $("#data_saveData").text()
+			$("#data_saveData").text("Uploading..")
+			$("#data_saveData").prop('disabled', true);
 			$.ajax({ 
 				headers: { "X-CSRFToken": '{{csrf_token}}' },
 		        url: '/datastructure/uploadFile/', 
@@ -334,6 +340,8 @@
 		        contentType: false, 
 		        processData: false
 		    }).done(function(data){
+		    	$("#data_saveData").text(existingButtonText)
+		    	$("#data_saveData").prop('disabled', false);
 		    	console.log("sucsess",data);
 		    	if(data.result){
 		    		element.attr("url",data.data)

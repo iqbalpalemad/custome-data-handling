@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'datastructure.apps.DatastructureConfig',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'api.apps.ApiConfig'
 ]
 
 MIDDLEWARE = [
