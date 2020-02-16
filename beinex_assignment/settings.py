@@ -25,7 +25,7 @@ SECRET_KEY = '_ngp(y05lq8ky^rl3*-#p049!hp%2^wuqb@f!2keh1^i8%2$8^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['13.127.183.199']
 
 
 # Application definition
@@ -89,7 +89,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'beinex_assignment',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'Net#3782',
         'HOST': 'localhost',
         'PORT' : '3306'
     }
