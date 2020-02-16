@@ -96,8 +96,8 @@ $(document).ready(function(){
 			
 			dataName  	 = $(this).find(".dataRowName").val()
 			dataTypeName = $(this).find(".dataRowDataTypeName").val()
-			if(fileDataTypes.includes(dataTypeName)){
-				console.log("inside if")
+			if(fileDataTypes.includes(dataTypeName.toLowerCase())){
+				console.log("inside if") 
 				dataValue 	 = $(this).find(".dataRowFile").attr("url");
 				if(dataValue == "" || typeof dataValue == "undefined"){
 					fieldsOk = false;
@@ -247,9 +247,6 @@ $(document).ready(function(){
 		});
 	})
 
-
-	$(".navDataItem").click()
-	// $("#data_add_new").click()
 })
 
 
@@ -294,7 +291,7 @@ $(document).on("click",".data_edit_data",function(){
 			element +='<div class="col-md-3"><input value="'+value.dataName+'"  type="text" class="form-control dataRowName" disabled></div>'
 			element +='<div class="col-md-3"><input value="'+value.dataTypeName+'"  type="text" class="form-control dataRowDataTypeName" disabled></div>'
 			element +='<div class="col-md-4">'
-			if(fileDataTypes.includes(value.dataTypeName)){
+			if(fileDataTypes.includes(value.dataTypeName.toLowerCase())){
 				element += '<a type="button" class="btn btn-success dataRowFile html5lightbox" url="'+value.dataValue+'" href="'+value.dataValue+'" style="width: 50%;" target="_blank">View</a>'
 				element += '<button type="button" class="btn btn-danger removeImage" style="width: 50%;float: right;">Remove</button>'
 			}
@@ -432,6 +429,9 @@ function uploadFile(element){
 	var files 	 = $(element)[0].files[0];
 	formData.append('file', files); 
 	formData.append("mappingId",$(element).attr("id"));
+	existingButtonText = $("#data_saveData").text()
+	$("#data_saveData").text("Uploading..")
+	$("#data_saveData").prop('disabled', true);
 	$.ajax({ 
 		headers: { "X-CSRFToken": token },
         url: '/datastructure/uploadFile/', 
@@ -441,6 +441,8 @@ function uploadFile(element){
         processData: false
     }).done(function(data){
     	console.log("sucsess",data);
+    	$("#data_saveData").text(existingButtonText)
+    	$("#data_saveData").prop('disabled', false);
     	if(data.result){
     		element.attr("url",data.data)
     	}

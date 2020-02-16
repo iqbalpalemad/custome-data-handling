@@ -96,8 +96,8 @@ $(document).ready(function(){
 			
 			dataName  	 = $(this).find(".dataRowName").val()
 			dataTypeName = $(this).find(".dataRowDataTypeName").val()
-			if(fileDataTypes.includes(dataTypeName)){
-				console.log("inside if")
+			if(fileDataTypes.includes(dataTypeName.toLowerCase())){
+				console.log("inside if") 
 				dataValue 	 = $(this).find(".dataRowFile").attr("url");
 				if(dataValue == "" || typeof dataValue == "undefined"){
 					fieldsOk = false;
@@ -247,9 +247,6 @@ $(document).ready(function(){
 		});
 	})
 
-
-	// $(".navDataItem").click()
-	// $("#data_add_new").click()
 })
 
 

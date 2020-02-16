@@ -3,7 +3,6 @@ from .models import Datastructure,dataTypeMapping,DatastructureData,fileData
 from users.models import CustomUser
 from django.http import HttpResponse,JsonResponse
 import json
-from django_datatables_view.base_datatable_view import BaseDatatableView
 from django.utils.html import escape
 
 # Create your views here.
