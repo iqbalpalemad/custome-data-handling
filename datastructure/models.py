@@ -27,3 +27,12 @@ class dataTypeMapping(models.Model):
     # class Meta:
     #     unique_together = ('datastructure', 'datatype',)
 
+class DatastructureData(models.Model):
+    datastructure = models.ForeignKey(Datastructure, on_delete=models.CASCADE)
+    name          = models.CharField(max_length=128)
+    data          = jsonfield.JSONField()
+    def __str__(self):
+        return self.name
+
+class fileData(models.Model):
+    file = models.FileField(upload_to='uploads/')

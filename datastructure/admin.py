@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Datastructure, dataTypeMapping
+from .models import Datastructure, dataTypeMapping,DatastructureData
 # Register your models here.
 
 class dataStructureDataTypeMapping(admin.TabularInline):

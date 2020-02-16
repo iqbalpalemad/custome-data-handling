@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.http import HttpResponse, JsonResponse,HttpResponseRedirect
-from datastructure.models import Datastructure
+from datastructure.models import Datastructure,DatastructureData
 from django.urls import reverse
 
 
@@ -15,7 +15,8 @@ def index(request):
         else:
             print("noraml user")
         dataStructures = Datastructure.objects.filter(user__username =request.user.username)
-        context = {'dataStructures':dataStructures}
+        datasCreated   = DatastructureData.objects.filter(datastructure__user__username =request.user.username)
+        context = {'dataStructures':dataStructures,"datasCreated":datasCreated}
         return render(request, "user/home.html", context)
     else:
         return redirect(reverse('login'))

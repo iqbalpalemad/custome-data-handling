@@ -1,0 +1,449 @@
+{% extends "admin/index.html" %}
+{% load i18n static bootstrap_admin_template_tags %}
+
+{% block extra_links %}
+    {{block.super}}
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css"/>
+    <link rel = "stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style type="text/css">
+    	.error{
+    		border: 1px solid red;
+    	}
+    </style>
+{% endblock %}
+
+
+{% block title %}Admin{%endblock %}
+
+{% block content %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">Datas Created By Users</li>
+</ol>
+<div class="container-fluid">
+	<div class="row">
+	    <div class="table-responsive">
+	        <table class="datatable compact table table-striped table-bordered">
+	            <thead>
+	                <th class="text-center">{% trans "User Name" %}</th>
+	                <th class="text-center">{% trans "Data Name" %}</th>
+	                <th class="text-center">{% trans "Datastructure Name" %}</th>
+	                <th class="text-center">{% trans "Actions" %}</th>
+	            </thead>
+	            <tbody>
+	            </tbody>
+	        </table>
+	    </div>
+	</div>
+</div>
+
+
+<div class="modal" id="dataModal" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title" style="text-align: center;">Add New Data</h4>
+        <!-- <br> -->
+        <div style="text-align: center;font-weight: bold;margin-top: 1%"><span id="data_errorSpan" style="color: red"></span> </div>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body dataModalBody">
+        <div class="row">
+          <div class="col-md-1"></div>
+          <div class="col-md-3" style="font-weight: bold;">Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</div>
+          <div class="col-md-7"><input placeholder="Enter Data Name" type="text" class="form-control" id="dataName"></div>
+          <div class="col-md-1"></div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-md-1"></div>
+          <div class="col-md-3" style="font-weight: bold;">Data Structure&nbsp;:</div>
+          <div class="col-md-7"><select class="form-control" id="dataStructureSelect"></select></div>
+          <div class="col-md-1"></div>
+        </div>
+        <hr>
+        <div class="dataModalBodyContent">
+        </div>
+        <!-- <div class="row">
+          <div class="col-md-9"></div>
+          <div class="col-md-2">
+            <button type="button" id="data_addField" class="btn btn-primary">Add Field</button>
+          </div>
+          <div class="col-md-1">
+          </div>
+        </div> -->
+
+
+        <br>
+
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="data_closeModal">Close</button>
+        <button type="button" class="btn btn-success" id="data_saveData">Save</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+
+{% block js %}
+<script type="text/javascript" 
+    src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+
+<script type="text/javascript" 
+    src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+
+<script type="text/javascript"
+    src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+    integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+    crossorigin="anonymous"></script>
+
+<script type="text/javascript" src='{% static "js/html5lightbox/html5lightbox.js" %}'></script>
+
+<script type="text/javascript">
+	(function ($) {
+		var fileDataTypes = ["file","files","image","photo","images","photos","video","videos","pic","pics"]
+		$(document).ready(function() {
+			console.log("main page loaded")
+			getCompleteData();
+		})
+
+
+		$(document).on("click",".data_delete_data",function(){
+
+			makesure = confirm("Are you sure you want to delete this item?");
+			if(makesure){
+				url     = "/datastructure/deleteData/"
+				id      = $(this).attr("id")
+				data    = {id:id}
+				sendAjax(url,data,function(data){
+			       if(data.result){
+			       	$("#dataTableRow_"+id).remove()
+
+			       	appendDataNodataDiv()
+			       }
+			       else{
+			       	alert("Something went wrong!. Please try again")
+			       }
+				})
+			}
+			else{
+				return false;
+			}
+		})
+
+		$(document).on("click",".data_edit_data",function(){
+			url = "/datastructure/getData/"
+			data = {id:$(this).attr("id")}
+			did = $(this).data("did");
+			sendAjax(url,data,function(data){
+				dataData = JSON.parse(data.data.data)
+				$("#dataName").val(data.data.name)
+				$(".dataModalBodyContent").empty()
+				heading = '<div class="row" style="text-align: center;font-weight: bold;"><br><div class="col-md-1"></div><div class="col-md-3">Data Name</div><div class="col-md-3">Datatype</div><div class="col-md-4">Data Value</div><div class="col-md-1"></div>'
+				$(".dataModalBodyContent").append(heading);
+				$.each(dataData,function(key,value){
+					element = '<div class="row dataRow">'
+					element += '<br>'
+					element +='<div class="col-md-1"></div>'
+					element +='<div class="col-md-3"><input value="'+value.dataName+'"  type="text" class="form-control dataRowName" disabled></div>'
+					element +='<div class="col-md-3"><input value="'+value.dataTypeName+'"  type="text" class="form-control dataRowDataTypeName" disabled></div>'
+					element +='<div class="col-md-4">'
+					if(fileDataTypes.includes(value.dataTypeName)){
+						element += '<a type="button" class="btn btn-success dataRowFile html5lightbox" url="'+value.dataValue+'" href="'+value.dataValue+'" style="width: 50%;" target="_blank">View</a>'
+						element += '<button type="button" class="btn btn-danger removeImage" style="width: 50%;float: right;">Remove</button>'
+					}
+					else{
+						element +='<input placeholder="Enter value" value ="'+value.dataValue+'"  type="text" class="form-control dataRowValue">'
+					}
+					element +='</div>'
+					element +='</div>'
+					element +='<div class="col-md-1"></div>'
+					element +='</div>'
+
+					$(".dataModalBodyContent").append(element);
+					$(".html5lightbox").html5lightbox(); 
+				})
+				$("#data_saveData").addClass("update")
+				$("#data_saveData").data("id",data.data.id)
+				$("#data_saveData").text("update")
+				getAllDataStructuresById(did,function(){
+					$("#dataStructureSelect").val(data.data.dataStructureId)
+					$("#dataModal").modal("show")
+				})
+				
+			})
+		})
+
+
+		$("#data_closeModal").click(function(){
+			$(".error").removeClass("error");
+			$("#data_errorSpan").text("");
+			$("#dataName").val('');
+			$("#data_saveData").text("Save")
+			$("#data_saveData").removeClass("update")
+			$(".dataModalBodyContent").empty()
+			$("#dataModal").modal("hide")
+
+
+		})
+
+
+
+		$("#saveData").click(function(){
+			if($(".dataStructureRow").length < 1){
+				addError($("#addField"),"add atleast one field")
+				return false;
+			}
+
+			dataStructureName = $("#dataStructureName").val()
+			if(dataStructureName == ""){
+				addError($("#dataStructureName"),"Please enter a data structure name")
+				return false;
+			}
+			fieldsOk = true;
+			dataStructure = []
+			$(".dataStructureRow").each(function(){
+
+				fieldName = $(this).find(".dataStructureRowName").val()
+				if(fieldName == ""){
+					fieldsOk = false;
+					addError($(this).find(".dataStructureRowName"),"Please enter a name for this filed")
+					return false;
+				}
+
+				dataType = $(this).find(".dataStructureRowDataType").find(":selected").text();
+				if(dataType == "Select Datatype"){
+					addError($(this).find(".dataStructureRowDataType"), "Please select the datatype")
+					fieldsOk = false;
+					return false;
+
+				}
+				dataTypeId = $(this).find(".dataStructureRowDataType").find(":selected").val()
+				dataStructure.push({name:fieldName,id:dataTypeId})
+
+			})
+
+			if(!fieldsOk){
+				return false;
+			}
+
+			if($(this).hasClass("update")){
+					updateDatastructure($(this).data("id"),dataStructureName,JSON.stringify(dataStructure))
+			}
+			else{
+					saveDatastructure(dataStructureName,JSON.stringify(dataStructure));
+				}
+
+		});
+
+
+		$("#data_saveData").click(function(){
+			dataStructure_id = $("#dataStructureSelect").val();
+			if(dataStructure_id == 0){
+				addDataError($("#dataStructureSelect"),"Please choose a data structure")
+				return false;
+			}
+			name = $("#dataName").val()
+			if(name == ""){
+				addDataError($("#dataName"),"Please enter a name")
+				return false;
+			}
+			fieldsOk = true;
+			dataCreated = []
+			$(".dataRow").each(function(){
+				
+				dataName  	 = $(this).find(".dataRowName").val()
+				dataTypeName = $(this).find(".dataRowDataTypeName").val()
+				if(fileDataTypes.includes(dataTypeName)){
+					console.log("inside if")
+					dataValue 	 = $(this).find(".dataRowFile").attr("url");
+					if(dataValue == "" || typeof dataValue == "undefined"){
+						fieldsOk = false;
+						addDataError($(this).find(".dataRowFile"),"Please choose a file")
+						return false;
+					}
+				}
+				else{
+					console.log("inside else")
+					dataValue 	 = $(this).find(".dataRowValue").val();
+					if(dataValue == "" || typeof dataValue == "undefined"){
+						console.log("inside second if")
+						fieldsOk = false;
+						addDataError($(this).find(".dataRowValue"),"Please enter "+dataName+" value")
+						return false;
+					}
+				}
+
+
+				if(typeof dataValue != "undefined" && typeof dataName != "undefined" && typeof dataTypeName != "undefined")
+					dataCreated.push({dataName:dataName,dataValue:dataValue,dataTypeName:dataTypeName})
+
+
+			})
+			if(!fieldsOk){
+				return false;
+			}
+
+			console.log(JSON.stringify(dataCreated))
+
+			updateData($(this).data("id"),name,JSON.stringify(dataCreated),dataStructure_id)
+
+
+		})
+
+		$(document).on("click",".removeImage",function(){
+			console.log($(this).closest("div"))
+			$(this).closest("div").html('<input type="file" class="dataRowFile" >')
+		})
+
+
+		$(document).on("change",".dataRowFile",function(){
+			uploadFile($(this));
+		})
+
+		$(document).on("click","input,select,#addField",function(){
+
+		 if($(this).hasClass("error")){
+		 	$(this).removeClass("error");
+		 	$("#errorSpan").text("");
+		 }
+		})
+
+		function uploadFile(element){
+			var formData = new FormData();
+			var files 	 = $(element)[0].files[0];
+			formData.append('file', files); 
+			formData.append("mappingId",$(element).attr("id"));
+			$.ajax({ 
+				headers: { "X-CSRFToken": '{{csrf_token}}' },
+		        url: '/datastructure/uploadFile/', 
+		        type: 'post', 
+		        data: formData, 
+		        contentType: false, 
+		        processData: false
+		    }).done(function(data){
+		    	console.log("sucsess",data);
+		    	if(data.result){
+		    		element.attr("url",data.data)
+		    	}
+		    	else{
+		    		alert("upload failed.Please try again")
+		    	}
+
+		    }).fail(function(data){
+		    	console.log("failed",data);
+		    })
+
+		}
+
+		function addDataError(element,errorMessage){
+			element.addClass("error");
+			$("#data_errorSpan").text(errorMessage);
+		}
+
+		function updateData(id,name,data,dataStructure_id){
+
+			url  = "/datastructure/updateData/"
+			console.log(data)
+			ajaxdata = {id:id,name:name,data:data,dataStructure_id:dataStructure_id}
+			console.log(ajaxdata)
+			sendAjax(url,ajaxdata,function(response){
+				if(response.result){
+					console.log(response)
+					$("#dataTableRow_"+id).find(".row_name").text(name)
+					$("#dataTableRow_"+id).find(".row_data_structure_name").text(response.data_structure_name)
+					
+					$("#data_closeModal").click();
+				}
+				else{
+					alert("Something went wrong!. Please try again");
+				}
+			});
+		}
+
+		function getAllDataStructuresById(id,callback){
+			console.log(id)
+			sendAjax("/datastructure/getAllDataStructuresById/",{id:id},function(data){
+				$("#dataStructureSelect").empty();
+				element = '<option value="0">Select Datatype</option>'
+				$.each(data,function(key,value){
+					element += '<option  value="'+value.id+'">'+value.name+'</option>'
+				})
+				$("#dataStructureSelect").append(element)
+				callback("ok")
+
+			});
+		}
+
+		function getCompleteData(){
+			url ='{% url "getAllData" %}'
+			sendAjax(url,{},function(data){
+				console.log(data);
+				$.each(data.data,function(key,value){
+					appendDataTableRow(value)
+				})
+			})
+		}
+
+
+		function sendAjax(url,data,callback){
+			$.ajax({
+			   headers: { "X-CSRFToken": '{{csrf_token}}' },
+			   url: url,
+			   data : data,
+			   type : 'POST'
+			})
+			.done(function( data ) {
+				 callback(data)
+			})
+			.fail(function() {
+			    callback(data)
+			});
+		}
+
+		function appendDataTableRow(row){
+			$(".data_nodata_row").remove()
+			element  = '<tr id="dataTableRow_'+row.id+'">';
+			element += '<td class="row_user_name">'+row.userName+'</td>'
+			element += '<td class="row_name">'+row.name+'</td>'
+			element += '<td class="row_data_structure_name">'+row.dataStructureName+'</td>'
+			element += '<td style="text-align: center;width: 20%;">'
+			element += '<i class="fa fa-edit data_edit_data tooltip_item"       title="edit '+row.name+'"     data-did="'+row.dataStructureId+'"      id="'+row.id+'" style="font-size:28px;cursor: pointer;"></i>'
+			element += '&nbsp;'
+			element += '<i class="fa fa-trash-o data_delete_data tooltip_item"  title="delete '+row.name+'"       id="'+row.id+'" style="font-size:28px;cursor: pointer;"></i>'
+			element += '</td>'
+			element += '</tr>'
+			$("tbody").append(element)
+		}
+
+		function appendDataNodataDiv(){
+			var rowCount = $('#dataTable tr').length;
+			if(rowCount == 0){
+				element = '<tr class="data_nodata_row"><td colspan="4" style="text-align: center;">No data to display</td></tr>'
+				$("#dataTable").append(element)
+				$("#data_delete_selected").hide()
+			}
+		}
+
+
+
+	})(django.jQuery);
+
+
+
+
+</script>
+
+{% endblock js %}

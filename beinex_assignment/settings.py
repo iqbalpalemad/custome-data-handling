@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'datatypes.apps.DatatypesConfig',
     'users.apps.UsersConfig',
     'user.apps.UserConfig',
-    'datastructure.apps.DatastructureConfig'
+    'datastructure.apps.DatastructureConfig',
+    'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -74,7 +76,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'beinex_assignment.wsgi.application'
 
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # <-- And here
+    ],
+}
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -135,6 +141,8 @@ STATIC_URL = '/collectstatic/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'collectstatic')
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL  = "/user/"
 AUTH_USER_MODEL = 'users.CustomUser'
